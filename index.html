@@ -175,7 +175,7 @@ nav.scrolled{border-color:var(--line);background:rgba(247,245,239,0.96)}
 .hero-trust .txt b{font-weight:800;color:var(--ink)}
 
 /* ── HERO RIGHT: product preview composition ─────────── */
-.hero-right{position:relative;display:flex;justify-content:center;min-height:560px;align-items:center}
+.hero-right{position:relative;display:flex;justify-content:center;min-height:560px;align-items:center;transform:translateY(-110px)}
 .hero-bg-shape{
   position:absolute;width:120%;height:108%;
   background:radial-gradient(ellipse 60% 60% at 50% 50%, var(--accent-soft) 0%, transparent 70%);
@@ -955,7 +955,7 @@ footer{background:var(--ink);color:var(--bg);padding-top:70px}
 /* ── RESPONSIVE ── */
 @media(max-width:1024px){
   .hero-grid{grid-template-columns:1fr;gap:60px}
-  .hero-right{order:2;min-height:480px}
+  .hero-right{order:2;min-height:480px;transform:none}
   .statbar{grid-template-columns:repeat(2,1fr);gap:16px}
   .statbar .stat:nth-child(2){border-left:none}
   .srv-grid{grid-template-columns:repeat(2,1fr)}
