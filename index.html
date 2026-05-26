@@ -180,6 +180,16 @@ nav.scrolled{border-color:var(--line);background:rgba(247,245,239,0.96)}
   position:absolute;width:120%;height:108%;
   background:radial-gradient(ellipse 60% 60% at 50% 50%, var(--accent-soft) 0%, transparent 70%);
   z-index:0;
+  animation:heroGlow 9s ease-in-out infinite;
+  transform-origin:50% 50%;
+  will-change:transform, opacity;
+}
+@keyframes heroGlow{
+  0%,100%{opacity:1;transform:scale(1) translate(0,0)}
+  50%{opacity:.72;transform:scale(1.08) translate(2.5%,-1.5%)}
+}
+@media (prefers-reduced-motion: reduce){
+  .hero-bg-shape{animation:none}
 }
 
 .dashboard{
@@ -951,6 +961,12 @@ footer{background:var(--ink);color:var(--bg);padding-top:70px}
 .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s ease, transform .7s ease}
 .reveal.vis{opacity:1;transform:translateY(0)}
 .reveal-d1{transition-delay:.08s}.reveal-d2{transition-delay:.16s}.reveal-d3{transition-delay:.24s}
+.srv-grid > .reveal:nth-child(1){transition-delay:0s}
+.srv-grid > .reveal:nth-child(2){transition-delay:.09s}
+.srv-grid > .reveal:nth-child(3){transition-delay:.18s}
+.srv-grid > .reveal:nth-child(4){transition-delay:.27s}
+.srv-grid > .reveal:nth-child(5){transition-delay:.36s}
+.srv-grid > .reveal:nth-child(6){transition-delay:.45s}
 
 /* ── RESPONSIVE ── */
 @media(max-width:1024px){
@@ -1125,19 +1141,19 @@ footer{background:var(--ink);color:var(--bg);padding-top:70px}
 <!-- ══════════════ STATS BAR ══════════════ -->
 <div class="statbar">
   <div class="stat reveal">
-    <div class="n accent">+47</div>
+    <div class="n accent">+<span data-count="47">0</span></div>
     <div class="l">פרויקטים שעלו לאוויר</div>
   </div>
   <div class="stat reveal reveal-d1">
-    <div class="n">48<span class="u">שעות</span></div>
+    <div class="n"><span data-count="48">0</span><span class="u">שעות</span></div>
     <div class="l">זמן הקמה לדף נחיתה</div>
   </div>
   <div class="stat reveal reveal-d2">
-    <div class="n">3.4<span class="u">×</span></div>
+    <div class="n"><span data-count="3.4" data-decimals="1">0</span><span class="u">×</span></div>
     <div class="l">שיפור ממוצע בהמרות</div>
   </div>
   <div class="stat reveal reveal-d3">
-    <div class="n">98<span class="u">/100</span></div>
+    <div class="n"><span data-count="98">0</span><span class="u">/100</span></div>
     <div class="l">ציון מהירות ב-Google</div>
   </div>
 </div>
@@ -1846,6 +1862,30 @@ const io = new IntersectionObserver((entries)=>{
   entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('vis'); io.unobserve(e.target); }});
 }, {threshold:.10});
 document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function animateCount(el){
+  const target = parseFloat(el.dataset.count);
+  const decimals = parseInt(el.dataset.decimals || '0', 10);
+  if (prefersReduced) { el.textContent = decimals ? target.toFixed(decimals) : target; return; }
+  const duration = 1400;
+  const start = performance.now();
+  function frame(now){
+    const t = Math.min((now - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - t, 3);
+    const value = target * eased;
+    el.textContent = decimals ? value.toFixed(decimals) : Math.round(value);
+    if (t < 1) requestAnimationFrame(frame);
+    else el.textContent = decimals ? target.toFixed(decimals) : target;
+  }
+  requestAnimationFrame(frame);
+}
+const countIo = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){ animateCount(e.target); countIo.unobserve(e.target); }
+  });
+}, {threshold:.5});
+document.querySelectorAll('[data-count]').forEach(el => countIo.observe(el));
 
 async function submitLead(e){
   e.preventDefault();
