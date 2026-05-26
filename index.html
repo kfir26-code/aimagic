@@ -1856,6 +1856,7 @@ async function submitLead(e){
   btn.disabled = true;
   const formData = new FormData(form);
   const payload = Object.fromEntries(formData.entries());
+  payload.replyto = payload['Email (אימייל)'] || '';
   try{
     const res = await fetch('https://api.web3forms.com/submit', {
       method:'POST',
