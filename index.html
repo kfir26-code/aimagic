@@ -1642,16 +1642,20 @@ footer{background:var(--ink);color:var(--bg);padding-top:70px}
   </div>
 
   <div class="contact-grid">
-    <div class="contact-form reveal">
+    <form class="contact-form reveal" id="leadForm" onsubmit="submitLead(event)">
       <h3>ספרו לי על הפרויקט</h3>
       <p class="sub">כמה פרטים בסיסיים, וניצור קשר תוך 24 שעות.</p>
+      <input type="hidden" name="access_key" value="0a7d7311-1e6a-4ca0-b508-7be82de9a4a7">
+      <input type="hidden" name="subject" value="ליד חדש מ-AI Magic">
+      <input type="hidden" name="from_name" value="AI Magic — ליד חדש">
+      <input type="checkbox" name="botcheck" style="display:none">
       <div class="field row2">
-        <div><label>שם מלא</label><input placeholder="ישראל ישראלי"></div>
-        <div><label>טלפון</label><input placeholder="050-1234567" inputmode="tel"></div>
+        <div><label>שם מלא</label><input name="Full Name (שם מלא)" placeholder="ישראל ישראלי" required></div>
+        <div><label>טלפון</label><input name="Phone (טלפון)" placeholder="050-1234567" inputmode="tel" required></div>
       </div>
-      <div class="field"><label>אימייל</label><input type="email" placeholder="you@example.com"></div>
+      <div class="field"><label>אימייל</label><input name="Email (אימייל)" type="email" placeholder="you@example.com" required></div>
       <div class="field"><label>סוג פרויקט</label>
-        <select>
+        <select name="Project Type (סוג פרויקט)">
           <option>דף נחיתה</option>
           <option>אתר תדמית</option>
           <option>חנות אונליין</option>
@@ -1661,12 +1665,12 @@ footer{background:var(--ink);color:var(--bg);padding-top:70px}
           <option>משהו אחר — נדבר</option>
         </select>
       </div>
-      <div class="field"><label>ספרו על הפרויקט</label><textarea placeholder="מה הרעיון, מה המטרה, ומה הזמן הרצוי?"></textarea></div>
+      <div class="field"><label>ספרו על הפרויקט</label><textarea name="Project Details (פרטי הפרויקט)" placeholder="מה הרעיון, מה המטרה, ומה הזמן הרצוי?"></textarea></div>
       <div class="submit-row">
         <span class="meta"><span class="grn"></span>תגובה תוך 24 שעות</span>
-        <button class="btn btn-accent" onclick="event.preventDefault();alert('תודה! נחזור אליך תוך 24 שעות 🚀')">שלחו <span class="arr">←</span></button>
+        <button class="btn btn-accent" type="submit">שלחו <span class="arr">←</span></button>
       </div>
-    </div>
+    </form>
 
     <div class="contact-side reveal reveal-d2">
       <div class="contact-card">
@@ -1842,6 +1846,36 @@ const io = new IntersectionObserver((entries)=>{
   entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('vis'); io.unobserve(e.target); }});
 }, {threshold:.10});
 document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+async function submitLead(e){
+  e.preventDefault();
+  const form = e.target;
+  const btn = form.querySelector('button[type="submit"]');
+  const original = btn.innerHTML;
+  btn.innerHTML = 'שולח...';
+  btn.disabled = true;
+  const formData = new FormData(form);
+  const payload = Object.fromEntries(formData.entries());
+  try{
+    const res = await fetch('https://api.web3forms.com/submit', {
+      method:'POST',
+      headers:{'Content-Type':'application/json; charset=utf-8','Accept':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if(data.success){
+      form.innerHTML = '<h3>תודה! 🚀</h3><p class="sub">קיבלתי את הפנייה — חוזר אליך תוך 24 שעות.</p>';
+    } else {
+      alert('משהו השתבש. אפשר לפנות בוואטסאפ: 052-328-0570');
+      btn.innerHTML = original;
+      btn.disabled = false;
+    }
+  } catch(err){
+    alert('אין חיבור לרשת. נסה שוב או פנה בוואטסאפ: 052-328-0570');
+    btn.innerHTML = original;
+    btn.disabled = false;
+  }
+}
 </script>
 
 </body>
